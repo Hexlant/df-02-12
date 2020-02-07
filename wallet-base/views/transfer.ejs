@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel='stylesheet' type='text/css' href='stylesheets/layout.css'/>
+  <link rel='stylesheet' type='text/css' href='stylesheets/transfer.css'/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <title>Transfer</title>
+</head>
+<body>
+  <div class="wrapper fadeInDown">
+    <div id="formContent">
+      <!-- ########### -->
+      <!--  Top Layer  -->
+      <!-- ########### -->
+      <div class='top'>
+        <!-- Icon -->
+        <div class="icon fadeIn first">
+          <img class="logo" src="images/ether-logo.png" id="icon" alt="User Icon" />
+          <!-- DropBox -->
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              ETH 전송하기
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="/">홈</a>
+              <a class="dropdown-item" href="/history">내 거래내역 보기</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+
+      <!-- #############  -->
+      <!--  Middle Layer  -->
+      <!-- #############  -->
+      <div class='middle'>
+        <form id="transferForm" method="post">
+          <input type="text" id="toAddress" class="fadeIn second" name="toAddress" placeholder="받는 주소" value="">
+          <input type="text" id="amount" class="fadeIn third" name="amount" placeholder="보내는 수량" value=""><br><br>
+          <input type="checkbox" name="isToken" id="isToken" onClick='enableDisable(this)'>  토큰 전송일 경우 체크<br>
+          <input type="text" id="contractAddress" class="fadeIn fourth" name="contractAddress" placeholder="컨트랙트 주소" value="">
+        </form>
+      </div>
+
+      <div class="loading-container">
+        <div class="loading"></div>
+        <div id="loading-text">트랜잭션 전송 중...</div>
+      </div>
+
+      <!-- #############  -->
+      <!--  Bottom Layer  -->
+      <!-- #############  -->
+      <div id="formFooter">
+        <button type="button" id="transferButton" class="fadeIn fourth btn btn-secondary">전송하기</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(() => {
+      $('.loading-container').hide();
+      const checkBox = document.getElementById('isToken');
+      enableDisable(checkBox);
+
+      $('#transferButton').click(() => {
+        transfer();
+      })
+    })
+
+    function enableDisable(isToken) {
+      var contractField = document.getElementById("contractAddress");
+      contractField.disabled = isToken.checked ? false : true;
+      if (!contractField.disabled) {
+        contractField.focus();
+      }
+    }
+
+    function transfer() {
+      var formData = $('#transferForm').serialize();
+      $.ajax({
+        type: 'POST',
+        url: '/transfer',
+        data: formData,
+        success: (res) => {
+          if (res.status === 'Success') {
+            alert('트랜잭션 성공' + res.txid)
+          } else {
+            alert('트랜잭션 실패' + res.msg.message)
+          }
+        },
+        beforeSend: () => {
+          $('.loading-container').show();
+        },
+        complete: () => {
+          $('.loading-container').hide();
+        }
+      })
+    }
+  </script>
+</body>
+</html>

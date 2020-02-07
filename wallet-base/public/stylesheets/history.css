@@ -1,0 +1,18 @@
+/* DROPDOWN */
+.dropdown {
+  margin: 40px 30px;
+  display: inline;
+  float: right;
+  left: 20px;
+}
+
+/* LOGO */
+.logo {
+  position: relative;
+  left: 100px;
+  margin-top: 20px;
+}
+
+table tr:nth-child(even) {
+  background-color: #e7f1f8;
+}

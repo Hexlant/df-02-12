@@ -1,0 +1,22 @@
+
+label {
+  margin-top: 20px;
+}
+
+/* DROPDOWN */
+.dropdown {
+  margin: 40px 30px;
+  display: inline;
+  float: right;
+}
+
+/* LOGO */
+.logo {
+  position: relative;
+  left: 65px;
+  margin-top: 20px;
+}
+
+.info {
+  display: inline-block;
+}

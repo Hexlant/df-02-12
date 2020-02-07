@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel='stylesheet' type='text/css' href='stylesheets/layout.css'/>
+  <link rel='stylesheet' type='text/css' href='stylesheets/history.css'/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <title>History</title>
+</head>
+<body>
+  <div class="wrapper fadeInDown">
+    <div id="formContent">
+      <!-- ########### -->
+      <!--  Top Layer  -->
+      <!-- ########### -->
+      <div class='top'>
+        <div class="icon fadeIn first">
+          <img class="logo" src="images/ether-logo.png" id="icon" alt="User Icon" />
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              내 거래내역 보기
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="/transfer">ETH 전송하기</a>
+              <a class="dropdown-item" href="/">홈</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      
+      <!-- #############  -->
+      <!--  Middle Layer  -->
+      <!-- #############  -->
+      <div class='middle'>
+        <form id="lookUpForm" method="get">
+          <input type="text" id="contractAddress" class="fadeIn second" name="contractAddress" placeholder="이력 조회할 컨트랙트 주소" value="">
+          <button type="button" id="lookUpButton" class="fadeIn fourth btn btn-secondary">조회하기</button>
+        </form>
+        <br>
+        <div class="col-md-12">
+          <nav>
+              <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                  <a class="nav-item nav-link active" id="nav-all-tab" data-toggle="tab" href="#nav-all" role="tab" aria-controls="nav-all" aria-selected="true">전체 내역</a>
+                  <a class="nav-item nav-link" id="nav-in-tab" data-toggle="tab" href="#nav-in" role="tab" aria-controls="nav-in" aria-selected="false">입금 내역</a>
+                  <a class="nav-item nav-link" id="nav-out-tab" data-toggle="tab" href="#nav-out" role="tab" aria-controls="nav-out" aria-selected="false">출금 내역</a>
+              </div>
+          </nav>
+          <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-all" role="tabpanel" aria-labelledby="nav-all-tab">
+                <table class="table" id="allTable" cellspacing="0">
+
+                </table>
+            </div>
+            <div class="tab-pane fade show" id="nav-in" role="tabpanel" aria-labelledby="nav-in-tab">
+              <table class="table" id="inTable" cellspacing="0">
+
+              </table>
+            </div>
+            <div class="tab-pane fade show" id="nav-out" role="tabpanel" aria-labelledby="nav-out-tab">
+              <table class="table" id="outTable" cellspacing="0">
+
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #############  -->
+      <!--  Down Layer  -->
+      <!-- #############  -->
+      <div id="formFooter">
+        <div>Hexlant.</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(document).ready(() => {
+      getHistory();
+      
+      $('#lookUpButton').click(() => {
+        $('#allHead').remove();
+        $('#allBody').remove();
+
+        $('#inHead').remove();
+        $('#inBody').remove();
+
+        $('#outHead').remove();
+        $('#outBody').remove();
+
+        getHistory();
+      })
+    })
+    
+    function goEtherscan(tx) {
+      const prefixUrl = 'https://ropsten.etherscan.io/tx/'
+      window.open(prefixUrl + tx);
+    }
+
+    function getHistory() {
+      var formData = $('#lookUpForm').serialize();
+      $.get({
+        url: 'history/getHistory',
+        data: formData,
+        dataType: 'json',
+      }, (response) => {
+        let allTabTable = $('#allTable')
+        let inTabTable = $('#inTable')
+        let outTabTable = $('#outTable')
+        
+        if (response.status == 1) {
+          allTabTable.append(`<thead id='allHead'><tr><th>type</th><th>from</th><th>to</th><th>amount</th></tr></thead><tbody id='allBody'>`)
+          inTabTable.append(`<thead id='inHead'><tr><th>type</th><th>from</th><th>amount</th></tr></thead><tbody id='inBody'>`)
+          outTabTable.append(`<thead id='outHead'><tr><th>type</th><th>to</th><th>amount</th></tr></thead><tbody id='outBody'>`)
+          
+          for (var i = 0; i < response.all.length; i++) {
+            const tx = 
+            allTabTable.append(`<tr onclick='goEtherscan("${response.all[i].txid}")'><td>${response.all[i].type}</td>
+              <td>${response.all[i].from}</td>
+              <td>${response.all[i].to}</td>
+              <td>${response.all[i].value}</td></tr>`)
+          }
+          for (var i = 0; i < response.in.length; i++) {
+            inTabTable.append(`<tr onclick='goEtherscan("${response.in[i].txid}")'><td>${response.in[i].type}</td>
+              <td>${response.in[i].from}</td>
+              <td>${response.in[i].value}</td></tr>`)
+          }
+          for (var i = 0; i < response.out.length; i++) {
+            outTabTable.append(`<tr onclick='goEtherscan("${response.out[i].txid}")'><td>${response.out[i].type}</td>
+              <td>${response.out[i].to}</td>
+              <td>${response.out[i].value}</td></tr>`)
+          }
+        } else if (response.status === 2) {
+          allTabTable.append(`<thead id='allHead'><tr><th>from</th><th>to</th><th>amount</th></tr></thead><tbody id='allBody'>`)
+          inTabTable.append(`<thead id='inHead'><tr><th>from</th><th>amount</th></tr></thead><tbody id='inBody'>`)
+          outTabTable.append(`<thead id='outHead'><tr><th>to</th><th>amount</th></tr></thead><tbody id='outBody'>`)
+
+          for (var i = 0; i < response.all.length; i++) {
+            allTabTable.append(`
+              <tr onclick='goEtherscan("${response.all[i].txid}")'><td>${response.all[i].from}</td>
+              <td>${response.all[i].to}</td>
+              <td>${response.all[i].value}</td></tr>`)
+          }
+          for (var i = 0; i < response.in.length; i++) {
+            inTabTable.append(`
+              <tr onclick='goEtherscan("${response.in[i].txid}")'><td>${response.in[i].from}</td>
+              <td>${response.in[i].value}</td></tr>`)
+          }
+          for (var i = 0; i < response.out.length; i++) {
+            outTabTable.append(`
+              <tr onclick='goEtherscan("${response.out[i].txid}")'><td>${response.out[i].to}</td>
+              <td>${response.out[i].value}</td></tr>`)
+          }
+        } else {
+        }
+      })
+    }
+  </script>
+
+</body>
+</html>

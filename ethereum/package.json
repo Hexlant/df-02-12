@@ -1,0 +1,23 @@
+{
+  "name": "etherContract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.8",
+    "solc": "^0.6.2",
+    "web3": "^1.2.6"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.0.1"
+  }
+}
