@@ -17,8 +17,8 @@ const amount = '<보내는 수량>';
     nonce,
     to,
     value: web3.utils.toWei(amount.toString(), 'ether'),
-    gasPrice: 30000000000,
-    gasLimit: 2000000,
+    gasPrice: config['gas']['price'],
+    gasLimit: config['gas']['limit'],
   };
   
   const account = web3.eth.accounts.privateKeyToAccount(privateKey);

@@ -1,28 +1,42 @@
-const hexlantAPI = 'http://106.10.58.158:3000/';
-const url = hexlantAPI + 'v1/rpc';
 const Web3 = require('web3');
-const web3 = new Web3(url);
+const Web3HttpProvider = require('web3-providers-http');
 
-const startBlock = 7298456;
-const endBlock = 7298517;
-const targetAddress = '0xBe203C3593832E55Da53c45525536977C1C90178';
+const httpEndpoint = 'https://octet-fullhistory.hexlant.com/v1/ETH/rpc';
+const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV1bkBoZXhsYW50LmNvbSIsImlhdCI6MTYwMDIzMzg5MCwiZXhwIjoxNjAxMDk3ODkwfQ.BCJAE-9sM1LS2YtkHQfkwnbWRgfj2hkp-qBEJ9PoGtc';
 
-async function getHistory(start, end, address) {
+const options = {
+  keepAlive: true,
+  withCredentials: false,
+  timeout: 30000,
+  headers: [
+    {
+      name: 'Authorization',
+      value: accessToken
+    }
+  ]
+};
+
+const web3 = new Web3(new Web3HttpProvider(httpEndpoint, options));
+
+(async function getHistory(start, end, address) {
+  const targetAddress = web3.utils.toChecksumAddress(address);
   let targetBlock = start;
   let lastBlock = end;   
-  let myHistory = [];       
+  let history = [];       
   try {
     while (targetBlock < lastBlock) {
-      console.log(targetBlock);
       const thisBlock = await web3.eth.getBlock(targetBlock, true);
-      const tasks = thisBlock.transactions.map(async tx => {
-        const sender = tx.from;
+      const transactions = thisBlock.transactions;
+      for (let i = 0; i < transactions.length; i += 1) {
+        const tx = transactions[i];
+        const sender = web3.utils.toChecksumAddress(tx.from);
         var receiver = tx.to;
         if (!receiver) return;
         const code = await web3.eth.getCode(receiver); 
-        if (code === '0x' && [sender, receiver].includes(address)) {
-          myHistory.push({
+        if (code === '0x' && [sender, receiver].includes(targetAddress)) {
+          history.push({
             type: 'eth',
+            height: targetBlock,
             sender,
             receiver,
             value: web3.utils.fromWei(tx.value.toString(), 'ether'), 
@@ -35,9 +49,10 @@ async function getHistory(start, end, address) {
           if (functionSignature == '0xa9059cbb') {
             const decodeParams = web3.eth.abi.decodeParameters(['address', 'uint256'], payload);
             receiver = decodeParams[0];
-            if ([sender, receiver].includes(address)) {
-              myHistory.push({
+            if ([sender, receiver].includes(targetAddress)) {
+              history.push({
                 type: 'erc',
+                height: targetBlock,
                 sender,
                 receiver,
                 value: web3.utils.fromWei(decodeParams[1].toString(), 'ether'),
@@ -46,19 +61,11 @@ async function getHistory(start, end, address) {
             } 
           }
         }
-      })
-      await Promise.all(tasks);
+      }
       targetBlock++;
     }
-    return myHistory;
+    console.log(history)
   } catch (e) {
     console.log(e);
   }
-}
-
-(async () => {
-  const latestBlock = await web3.eth.getBlockNumber();
-  const result = await getHistory(startBlock, endBlock, targetAddress);
-  console.log(result);
-})()
-
+})(100595, 100601, '0x32be343b94f860124dc4fee278fdcbd38c102d88')
