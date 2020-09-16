@@ -359,7 +359,6 @@ async function genSignedRawTx(type, to, amount) {
     }
     if(type == 'ETH' || type == 'eth') etherTransfer(to, amount)
     if(type == 'ERC' || type == 'erc') tokenTransfer(to, amount)
-    else console.log('올바르지 않은 전송 타입입니다.')
   }
   
   // 서명된 트랜잭션 생성
