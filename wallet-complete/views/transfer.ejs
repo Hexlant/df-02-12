@@ -89,10 +89,14 @@
         url: '/transfer',
         data: formData,
         success: (res) => {
-          if (res.status === 'Success') {
-            alert('트랜잭션 성공' + res.txid)
+          if (res.status === 'SUCCESS') {
+            alert('트랜잭션 성공 \n' + res.txid)
+          } else if (res.status === 'SESSION') {
+            window.location.href = '/'
+          } else if (res.status.includes('NOT FOUND')) {
+            alert('필수 값들을 채워주세요.');
           } else {
-            alert('트랜잭션 실패' + res.msg.message)
+            alert('트랜잭션 실패 \n' + JSON.stringify(res.msg))
           }
         },
         beforeSend: () => {

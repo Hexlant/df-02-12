@@ -18,6 +18,8 @@ router.get('/getHistory', async function (req, res) {
     const web3 = req.app.get('web3');
 
     const address = req.session.address;
+    if (!address) return res.json({ status: 4 });
+
     const contractAddr = req.query.contractAddress;
   
     let historyObj;

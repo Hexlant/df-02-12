@@ -24,16 +24,20 @@ router.post('/', async function(req, res) {
     const amount = req.body.amount
     const contractAddress = req.body.contractAddress;
 
+    if (!fromAddress || !fromPrivateKey) return res.json({ status: 'SESSION' });
+
+    if (!toAddress) return res.json({ status: 'NOT FOUND: toAddress' });
+    if (!amount) return res.json({ status: 'NOT FOUND: amount' });
+
     if (fromPrivateKey.startsWith('0x')) {
       fromPrivateKey = fromPrivateKey.replace('0x', '');
     }
 
-    ////
-    //  address에 대한 논스값  가져오기 
+    // 주소의 넌스값 가져오기
     //
-    //  const { data: { nonce } } =
+    //  const { data: { nonce } } = 
     //
-    //// 
+    // 
     
     const value = web3.utils.toWei(amount.toString(), 'ether');
     
@@ -64,20 +68,17 @@ router.post('/', async function(req, res) {
 
     const serializedTx = tx.serialize().toString('hex');
 
-
-    ////
-    //  서명된 트랜잭션 전파하기  
+    // 서명된 트랜잭션 전파하기
     //
-    //  const { data: { txid } } =
+    // const { data: { txid } } = 
+    // 
     //
-    //// 
-    
     response.txid = txid;
-    response.status = 'Success';
+    response.status = 'SUCCESS';
   } catch (e) {
     console.log(e);
-    response.msg = e;
-    response.status = 'Fail';
+    response.msg = e.message;
+    response.status = 'FAIL';
   }
   res.json(response);
 });

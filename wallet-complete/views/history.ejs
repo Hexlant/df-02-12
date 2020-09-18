@@ -112,7 +112,7 @@
         let allTabTable = $('#allTable')
         let inTabTable = $('#inTable')
         let outTabTable = $('#outTable')
-        
+
         if (response.status == 1) {
           allTabTable.append(`<thead id='allHead'><tr><th>type</th><th>from</th><th>to</th><th>amount</th></tr></thead><tbody id='allBody'>`)
           inTabTable.append(`<thead id='inHead'><tr><th>type</th><th>from</th><th>amount</th></tr></thead><tbody id='inBody'>`)
@@ -156,6 +156,8 @@
               <tr onclick='goEtherscan("${response.out[i].txid}")'><td>${response.out[i].to}</td>
               <td>${response.out[i].value}</td></tr>`)
           }
+        } else if (response.status === 4) {
+          window.location.href = '/';
         } else {
         }
       })

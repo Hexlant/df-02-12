@@ -156,6 +156,8 @@
               <tr onclick='goEtherscan("${response.out[i].txid}")'><td>${response.out[i].to}</td>
               <td>${response.out[i].value}</td></tr>`)
           }
+        } else if (response.status === 4) {
+          window.location.href = '/';
         } else {
         }
       })

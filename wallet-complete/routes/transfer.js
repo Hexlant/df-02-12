@@ -24,6 +24,11 @@ router.post('/', async function(req, res) {
     const amount = req.body.amount
     const contractAddress = req.body.contractAddress;
 
+    if (!fromAddress || !fromPrivateKey) return res.json({ status: 'SESSION' });
+
+    if (!toAddress) return res.json({ status: 'NOT FOUND: toAddress' });
+    if (!amount) return res.json({ status: 'NOT FOUND: amount' });
+
     if (fromPrivateKey.startsWith('0x')) {
       fromPrivateKey = fromPrivateKey.replace('0x', '');
     }
@@ -64,11 +69,11 @@ router.post('/', async function(req, res) {
     const { data: { txid } } = await instance.post(`rpc/pushTransaction`, { txHex: serializedTx }); 
     
     response.txid = txid;
-    response.status = 'Success';
+    response.status = 'SUCCESS';
   } catch (e) {
     console.log(e);
-    response.msg = e;
-    response.status = 'Fail';
+    response.msg = e.message;
+    response.status = 'FAIL';
   }
   res.json(response);
 });
