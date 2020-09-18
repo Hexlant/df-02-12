@@ -1,19 +1,12 @@
 const Web3 = require('web3');
 const Web3HttpProvider = require('web3-providers-http');
 
-const httpEndpoint = 'https://octet-fullhistory.hexlant.com/v1/ETH/rpc';
-const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV1bkBoZXhsYW50LmNvbSIsImlhdCI6MTYwMDIzMzg5MCwiZXhwIjoxNjAxMDk3ODkwfQ.BCJAE-9sM1LS2YtkHQfkwnbWRgfj2hkp-qBEJ9PoGtc';
+const httpEndpoint = 'http://octet-fullhistory-test.hexlant.com:3000/v1/rpc';
 
 const options = {
   keepAlive: true,
   withCredentials: false,
   timeout: 30000,
-  headers: [
-    {
-      name: 'Authorization',
-      value: accessToken
-    }
-  ]
 };
 
 const web3 = new Web3(new Web3HttpProvider(httpEndpoint, options));
@@ -68,4 +61,4 @@ const web3 = new Web3(new Web3HttpProvider(httpEndpoint, options));
   } catch (e) {
     console.log(e);
   }
-})(100595, 100601, '0x32be343b94f860124dc4fee278fdcbd38c102d88')
+})(100595, 100601, '0x1d773AFc03906832b9F10A225E8401c2A03dC821');
