@@ -222,13 +222,12 @@ const erc20ABI = [
   ]
   
 
-const hexlantEndPoint = 'http://106.10.58.158:3000';
-
+const httpEndpoint = 'http://octet-fullhistory-test.hexlant.com:3000/v1/';
 const network = 'ropsten';
 
 module.exports = {
-    getHexlantEndPoint: () => {
-        return hexlantEndPoint;
+    getHttpEndpoint: () => {
+        return httpEndpoint;
     },
 
     getErc20ABI: () => {

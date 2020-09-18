@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const config = require('../config');
 const request = require('request-promise-native');
-const url = config.getHexlantEndPoint();
+const url = config.getHttpEndpoint();
 
 router.get('/', async function(req, res, next) {
   try {
@@ -14,6 +14,7 @@ router.get('/', async function(req, res, next) {
 
 router.get('/getHistory', async function (req, res) {
   try {
+    const instance = req.app.get('axiosInstance');
     const web3 = req.app.get('web3');
 
     const address = req.session.address;
@@ -27,41 +28,24 @@ router.get('/getHistory', async function (req, res) {
     if (!contractAddr) {
       status = 1;
       // historyObj = address에 대한 전체 트랜잭션 히스토리 가져오기  http://106.10.58.158:9000/#api-Addresses-GetAddressesAddressTransactions  
-      historyObj = await request({ url: `${url}/v1/addresses/${address}/transactions`, json: true });
+      const resAPI =  await instance.get(`addresses/${address}/transactions`);
+      const historyObj = resAPI.data
       historyObj.forEach(h => {
-        if (h.type === 'erc20') {
-          listOfAllHistory.push({
-            type: h.type,
-            from: h.from,
-            to: h.token.to,
-            value: web3.utils.fromWei(h.token.value, 'ether'),
-            txid: h.txid,
-          });
-        } else {
-          listOfAllHistory.push({
-            type: h.type,
-            from: h.from,
-            to: h.to,
-            value: web3.utils.fromWei(h.value, 'ether'),
-            txid: h.txid,
-          });
-        }
+        listOfAllHistory.push({
+          type: h.type,
+          from: h.from,
+          to: h.type === 'erc20' ? h.token.to : h.to,
+          value: h.type === 'erc20' ? web3.utils.fromWei(h.token.value, 'ether') : web3.utils.fromWei(h.value, 'ether'),
+          txid: h.txid
+        })
+
         if (h.from === address) {
-          if (h.type === 'erc20') {
-            listOfOutHistory.push({
-              type: h.type,
-              to: h.token.to,
-              value: web3.utils.fromWei(h.token.value, 'ether'),
-              txid: h.txid,
-            });
-          } else {
-            listOfOutHistory.push({
-              type: h.type,
-              to: h.to,
-              value: web3.utils.fromWei(h.value, 'ether'),
-              txid: h.txid,
-            });
-          }
+          listOfOutHistory.push({
+            type: h.type,
+            to: h.type === 'erc20' ? h.token.to : h.to,
+            value: h.type === 'erc20' ? web3.utils.fromWei(h.token.value, 'ether') : web3.utils.fromWei(h.value, 'ether'),
+            txid: h.txid
+          })
         } 
         if (h.to === address) {
           listOfInHistory.push({
@@ -75,7 +59,8 @@ router.get('/getHistory', async function (req, res) {
     } else {  
       status = 2;
       // historyObj = contractAddr에 대한 컨트랙트 트랜잭션 히스토리 가져오기  http://106.10.58.158:9000/#api-Addresses-GetAddressesAddressTransactions
-      historyObj = await request({ url: `${url}/v1/addresses/${address}/transactions`, qs: { type: 'erc20', contractAddress: contractAddr }, json: true});
+      const resAPI = await instance.get(`addresses/${address}/transactions`, querystring.stringify({ type: 'erc20', contractAddr: contractAddr }));
+      const historyObj = resAPI.data;
       historyObj.forEach(h => {
         listOfAllHistory.push({
           from: h.from,
