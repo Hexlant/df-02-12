@@ -11,13 +11,13 @@ const options = {
 
 const web3 = new Web3(new Web3HttpProvider(httpEndpoint, options));
 
-(async function getHistory(start, end, address) {
+async function getHistory(start, end, address) {
   const targetAddress = web3.utils.toChecksumAddress(address);
   let targetBlock = start;
   let lastBlock = end;   
-  let history = [];       
   try {
     while (targetBlock < lastBlock) {
+      console.log(targetBlock);
       const thisBlock = await web3.eth.getBlock(targetBlock, true);
       const transactions = thisBlock.transactions;
       for (let i = 0; i < transactions.length; i += 1) {
@@ -25,40 +25,32 @@ const web3 = new Web3(new Web3HttpProvider(httpEndpoint, options));
         const sender = web3.utils.toChecksumAddress(tx.from);
         var receiver = tx.to;
         if (!receiver) return;
-        const code = await web3.eth.getCode(receiver); 
-        if (code === '0x' && [sender, receiver].includes(targetAddress)) {
-          history.push({
-            type: 'eth',
-            height: targetBlock,
-            sender,
-            receiver,
-            value: web3.utils.fromWei(tx.value.toString(), 'ether'), 
-            hash: tx.hash
-          });
-        } else {
-          const inputData = tx.input;
-          const functionSignature = inputData.substr(0, 10);
-          const payload = '0x' + inputData.substr(10);
-          if (functionSignature == '0xa9059cbb') {
-            const decodeParams = web3.eth.abi.decodeParameters(['address', 'uint256'], payload);
-            receiver = decodeParams[0];
-            if ([sender, receiver].includes(targetAddress)) {
-              history.push({
-                type: 'erc',
-                height: targetBlock,
-                sender,
-                receiver,
-                value: web3.utils.fromWei(decodeParams[1].toString(), 'ether'),
-                hash: tx.hash
-              });
-            } 
+        else {
+          const code = await web3.eth.getCode(receiver); 
+          receiver = web3.utils.toChecksumAddress(receiver);
+          if (code === '0x' && [sender, receiver].includes(targetAddress)) {
+            console.log(`이더전송 트랜잭션 ${tx.hash}`)
+          } else {
+            const inputData = tx.input;
+            const functionSignature = inputData.substr(0, 10);
+            const payload = '0x' + inputData.substr(10);
+            if (functionSignature == '0xa9059cbb') {
+              const decodeParams = web3.eth.abi.decodeParameters(['address', 'uint256'], payload);
+              receiver = decodeParams[0];
+              if ([sender, receiver].includes(targetAddress)) {
+                console.log(`토큰전송 트랜잭션 ${tx.hash}`)
+              } 
+            }
           }
         }
       }
       targetBlock++;
     }
-    console.log(history)
   } catch (e) {
     console.log(e);
   }
-})(100595, 100601, '0x1d773AFc03906832b9F10A225E8401c2A03dC821');
+};
+
+(async () => {
+  await getHistory(8731647, 8731650, '0x81b7E08F65Bdf5648606c89998A9CC8164397647')
+})();
