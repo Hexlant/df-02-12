@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "colors": "^1.4.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
